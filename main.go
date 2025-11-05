@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/ebitenui/ebitenui"
 	"github.com/ebitenui/ebitenui/image"
@@ -33,7 +34,10 @@ func (u *uiDemo) Update() error {
 	if u.state == gameStateMainMenu {
 		u.demoUI.Update()
 	} else {
-		//put post UI here
+		u.counter++
+		if u.counter > 400 {
+			os.Exit(0)
+		}
 	}
 	return nil
 }
@@ -42,7 +46,12 @@ func (u uiDemo) Draw(screen *ebiten.Image) {
 	if u.state == gameStateMainMenu {
 		u.demoUI.Draw(screen)
 	} else {
-		//draw post UI here
+		textOpts := text.DrawOptions{}
+		textOpts.GeoM.Translate(100, 400)
+		font := DefaultFont(32)
+		textOpts.ColorScale.ScaleWithColor(colornames.Azure)
+		textToDraw := fmt.Sprintf("You named your character %s", u.name)
+		text.Draw(screen, textToDraw, font, &textOpts)
 	}
 }
 
@@ -53,17 +62,17 @@ func (u uiDemo) Layout(outsideWidth, outsideHeight int) (int, int) {
 func main() {
 	ebiten.SetWindowSize(800, 720)
 	ebiten.SetWindowTitle("ebitenui demo")
-	gui := NewUI()
-	game := uiDemo{
-		demoUI: gui,
-	}
+
+	game := uiDemo{}
+	gui := NewUI(&game)
+	game.demoUI = gui
 	err := ebiten.RunGame(&game)
 	if err != nil {
 		log.Fatal(err)
 	}
 }
 
-func NewUI() ebitenui.UI {
+func NewUI(game *uiDemo) ebitenui.UI {
 	outerContainer := widget.NewContainer(
 		//create an achor layout with 50 pixals of padding on the left
 		widget.ContainerOpts.Layout(widget.NewAnchorLayout(
@@ -124,9 +133,16 @@ func NewUI() ebitenui.UI {
 			Bottom: 0,
 		}),
 	)
+	//we are declaring this function inside of the NewUI function
+	//so that we can use the game variable inside of it
+	startGamePressed := func(args *widget.ButtonClickedEventArgs) {
+		game.state = gameStateGameshow
+		game.name = nameInput.GetText()
+	}
 	innerContainer.AddChild(nameInput)
 	startButton := widget.NewButton(
 		widget.ButtonOpts.TextLabel("Start Game"),
+		widget.ButtonOpts.ClickedHandler(startGamePressed),
 		widget.ButtonOpts.TextFace(&buttonFont),
 		widget.ButtonOpts.TextColor(&widget.ButtonTextColor{
 			Idle:     colornames.Azure,
@@ -144,8 +160,8 @@ func NewUI() ebitenui.UI {
 				PressedDisabled: nil,
 			}),
 		widget.ButtonOpts.TextPadding(&widget.Insets{
-			Bottom: 60,
-		}),
+			Bottom: 60, //by default the text was below the button image
+		}), //so I added this padding to move it up
 		widget.ButtonOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 100)),
 	)
 	outerContainer.AddChild(innerContainer)
@@ -169,7 +185,7 @@ func NewUI() ebitenui.UI {
 	return GUItoDisplay
 }
 
-// pulled from the EBiten UI button demo
+// pulled from the EBiten UI button demo adnusted to allow to change size
 // uses build in font provided by GO
 func DefaultFont(size float64) text.Face {
 	s, err := text.NewGoTextFaceSource(bytes.NewReader(goregular.TTF))
