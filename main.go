@@ -114,7 +114,7 @@ func NewUI(game *uiDemo) ebitenui.UI {
 	nameInput := widget.NewTextInput(
 		widget.TextInputOpts.Face(&textfont),
 		widget.TextInputOpts.Color(&widget.TextInputColor{
-			Idle:          colornames.Bisque,
+			Idle:          colornames.Purple,
 			Disabled:      colornames.Gray,
 			Caret:         colornames.Black,
 			DisabledCaret: colornames.Gray,
@@ -125,10 +125,10 @@ func NewUI(game *uiDemo) ebitenui.UI {
 				Disabled:  image.NewNineSliceBorder(textInputPict, 14),
 				Highlight: image.NewNineSliceBorder(textInputPict, 14),
 			}),
-		widget.TextInputOpts.WidgetOpts(widget.WidgetOpts.MinSize(200, 60)),
+		widget.TextInputOpts.WidgetOpts(widget.WidgetOpts.MinSize(300, 80)),
 		widget.TextInputOpts.Padding(&widget.Insets{
 			Top:    0,
-			Left:   20,
+			Left:   30,
 			Right:  10,
 			Bottom: 0,
 		}),
@@ -148,7 +148,7 @@ func NewUI(game *uiDemo) ebitenui.UI {
 			Idle:     colornames.Azure,
 			Disabled: colornames.Gray,
 			Hover:    colornames.Aquamarine,
-			Pressed:  colornames.Aquamarine,
+			Pressed:  colornames.Bisque,
 		}),
 		widget.ButtonOpts.Image(
 			&widget.ButtonImage{
